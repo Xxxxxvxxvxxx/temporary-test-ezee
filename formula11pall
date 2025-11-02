@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chapter Images Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      overflow-x: hidden;
+    }
+
+    .page {
+      position: relative;
+    }
+
+    .page img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    /* Fixed watermark on right side */
+    .watermark-vertical-right {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%) rotate(90deg);
+      color: #b0bec5;
+      opacity: 0.60;
+      font-weight: bold;
+      font-size: 4vw;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 9999;
+    }
+
+    /* Per-image bottom-right watermark */
+    .watermark-bottom {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      color: #f2ba49;
+      opacity: 0.50;
+      font-weight: bold;
+      font-size: 2.5vw;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    /* Per-image left-center watermark (horizontal + animated) */
+    .watermark-left-center {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      color: #b0bec5;
+      opacity: 0.60;
+      font-weight: bold;
+      font-size: 2.5vw;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+
+      /* Animation */
+      animation: floatY 4s ease-in-out infinite;
+    }
+
+    /* Keyframes: move up & down 1cm */
+    @keyframes floatY {
+      0%, 100% {
+        transform: translateY(-50%);
+      }
+      50% {
+        transform: translateY(calc(-50% - 1cm));
+      }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false">
+  <div id="images"></div>
+
+  <!-- Only one fixed right-side watermark -->
+  <div class="watermark-vertical-right">@EzeeNotesListBot</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const chapter = params.get('chapter');
+
+    const chapters = {
+      'chapter1': [
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752597741/IMG_20250715_215834_hybpl3.jpg',
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752597740/IMG_20250715_215849_xioc9w.jpg'
+      ],
+      'chapter2': [
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752668846/IMG_20250716_175558_rkgtxh.jpg',
+      ],
+      'chapter3': [
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752669024/IMG_20250716_175847_t0vx8s.jpg',
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752669035/IMG_20250716_175904_q8abnp.jpg',
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752669048/IMG_20250716_175923_cgcozw.jpg',
+        'https://res.cloudinary.com/dhonp88e0/image/upload/v1752669059/IMG_20250716_175944_u05k2h.jpg'
+      ],
+      'chapter4': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752828061/IMG_20250718_141040_qvfkpx.jpg',
+      ],
+      'chapter5': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752829888/IMG_20250718_141847_tfztwh.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752829893/IMG_20250718_141900_hnsqvg.jpg',
+      ],
+      'chapter6': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752832499/IMG_20250718_152313_eupq6o.jpg',
+      ],
+      'chapter7': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752832850/IMG_20250718_153009_xbeglf.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752832866/IMG_20250718_153021_c64siu.jpg',
+      ],
+      'chapter8': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752833194/IMG_20250718_153539_r11wuu.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752833197/IMG_20250718_153553_aq6nmq.jpg'
+      ],
+      'chapter9': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752833352/IMG_20250718_153824_ivhshf.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752833354/IMG_20250718_153835_xv3w4w.jpg'
+      ],
+      'chapter10': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752833554/IMG_20250718_154148_vpcel7.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752833560/IMG_20250718_154157_i1kjre.jpg'
+      ],
+      'chapter11': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752847234/IMG_20250718_192936_ak9ztm.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752847237/IMG_20250718_192957_ykxndn.jpg'
+      ],
+      'chapter12': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752847396/IMG_20250718_193220_a1dsvc.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752847398/IMG_20250718_193231_dwheha.jpg'
+      ],
+      'chapter13': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752847577/IMG_20250718_193520_b3qq4w.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752847581/IMG_20250718_193531_w6lzh9.jpg',
+      ],
+      'chapter14': [
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752853626/IMG_20250718_211545_dkencs.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752853646/IMG_20250718_211600_pygi0d.jpg',
+        'https://res.cloudinary.com/dprub0vbq/image/upload/v1752853654/IMG_20250718_211614_ynsget.jpg'
+      ]
+
+    };
+
+    const container = document.getElementById('images');
+
+    if (chapters[chapter]) {
+      chapters[chapter].forEach(url => {
+        const page = document.createElement('div');
+        page.className = 'page';
+
+        const img = document.createElement('img');
+        img.src = url;
+
+        const watermarkBottom = document.createElement('div');
+        watermarkBottom.className = 'watermark-bottom';
+        watermarkBottom.textContent = '@EzeeNotesListBot';
+
+        const watermarkLeftCenter = document.createElement('div');
+        watermarkLeftCenter.className = 'watermark-left-center';
+        watermarkLeftCenter.textContent = '@EzeeNotesListBot';
+
+        page.appendChild(img);
+        page.appendChild(watermarkBottom);
+        
+        container.appendChild(page);
+      });
+    }
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.addEventListener('dragstart', event => event.preventDefault());
+  </script>
+</body>
+</html>
